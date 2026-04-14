@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyBuddy Pro Max</title>
+<style>
+:root {
+  --bg: #0f1115; --bg-sidebar: #16191e; --bg-card: #1c2026;
+  --accent: #7289da; --border: #2d323a; --danger: #ff4757;
+  --text: #e0e0e0; --success: #2ecc71; --history: #9b59b6;
+}
+* { box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; height: 100vh; width: 100vw; overflow: hidden; }
+
+/* LOGIN CENTRALIZADO */
+#loginBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;  
+  width: 100vw;   
+  background: var(--bg);
+  gap: 15px;
+}
+.login-input {
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  width: 250px;
+  background: #1c2026;
+  color: white;
+  outline: none;
+}
+
+/* Sidebar */
+.sidebar { width: 280px; background: var(--bg-sidebar); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 15px; height: 100%; }
+.pomodoro-zone { background: #1a1d23; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--accent); }
+#timer-display { font-size: 32px; font-weight: bold; font-family: monospace; color: var(--accent); margin: 10px 0; }
+.pomo-btns button { padding: 6px 10px; font-size: 10px; background: #2d323a; cursor: pointer; border: none; border-radius: 5px; color: white; margin: 2px; }
+
+.streak-zone { background: #1a1d23; padding: 12px; border-radius: 12px; text-align: center; border: 1px solid #3e3214; font-weight: bold; }
+.garden-zone { background: #1a1d23; padding: 15px; border-radius: 12px; text-align: center; border: 1px dashed #3a3f4b; }
+#plant-display { font-size: 50px; display: block; }
+.level-zone { background: #1a1d23; padding: 12px; border-radius: 12px; text-align:center; border:1px solid #3e3214; margin-top:5px; }
+#level-progress-bar { background:#2d323a; height:8px; border-radius:4px; margin-top:5px; }
+#level-progress { height:8px; background:var(--accent); border-radius:4px; width:0%; }
+
+.history-btn, .notes-btn { background: var(--history); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: auto; }
+
+/* Main Area */
+.main { flex: 1; display: flex; flex-direction: column; padding: 20px; height: 100%; overflow: hidden; }
+.header-inputs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--bg-sidebar); padding: 15px; border-radius: 12px; }
+.header-inputs input { background: var(--bg-card); border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; outline: none; }
+#subject-in { flex: 2; }
+.num-in { width: 80px; }
+
+/* Kanban */
+.columns { display: flex; gap: 20px; flex: 1; overflow: hidden; }
+.column { background: var(--bg-sidebar); padding: 15px; border-radius: 12px; flex: 1; display: flex; flex-direction: column; min-width: 250px; }
+.column h3 { margin: 0 0 15px 0; font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.task-list { flex: 1; overflow-y: auto; padding-right: 5px; }
+
+.card { background: var(--bg-card); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid var(--accent); position: relative; animation: slideIn 0.3s ease; }
+.delete-icon { position: absolute; top: 10px; right: 10px; cursor: pointer; color: var(--danger); }
+.action-btn { font-size: 12px; cursor: pointer; color: #fff; background: var(--accent); border: none; padding: 8px; border-radius: 6px; margin-top: 10px; width: 100%; font-weight: bold; }
+
+/* IA Chat */
+.ai-fab { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; z-index: 1001; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.chat-container { position: fixed; bottom: 90px; right: 20px; width: 320px; background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 15px; display: none; flex-direction: column; height: 400px; z-index: 1000; }
+#chat-messages { flex: 1; overflow-y: auto; padding: 15px; font-size: 13px; display: flex; flex-direction: column; gap: 10px; }
+.msg { padding: 10px; border-radius: 10px; max-width: 85%; }
+.msg.user { background: #3a3f4b; align-self: flex-end; border-bottom-right-radius: 2px; }
+.msg.ai { background: #2c3e50; align-self: flex-start; border-left: 3px solid var(--accent); border-bottom-left-radius: 2px; }
+
+/* Modal Histórico */
+#history-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; align-items: center; justify-content: center; }
+.modal-content { background: var(--bg-sidebar); width: 500px; max-height: 80vh; border-radius: 15px; padding: 25px; overflow-y: auto; }
+.history-item { padding: 10px; border-bottom: 1px solid var(--border); font-size: 14px; }
+.history-item small { color: #666; display: block; margin-top: 4px; }
+
+/* Bloco de Notas */
+#notes-box { display:none; position: fixed; bottom:90px; right:360px; width:300px; height:400px; background: var(--bg-sidebar); border:1px solid var(--border); border-radius:15px; z-index:1500; flex-direction: column; }
+#notes-box textarea { flex:1; padding:10px; margin:10px; border-radius:8px; background:#1c2026; color:white; border:none; resize:none; }
+#notes-box button { margin:10px; padding:8px; border:none; border-radius:8px; background:var(--accent); color:white; cursor:pointer; }
+#notes-box .close-notes { position:absolute; top:5px; right:10px; cursor:pointer; color:var(--danger); font-weight:bold; font-size:18px; }
+
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox">
+  <h1>🌙 StudyBuddy</h1>
+  <p style="color: #666; font-size: 14px;">Bem-vindo ao seu espaço de foco</p>
+  <input id="user-login" class="login-input" placeholder="Seu nome">
+  <input id="pass-login" type="password" class="login-input" placeholder="Senha (1234)">
+  <button onclick="login()" style="width:100%; max-width: 250px; padding:15px; background:var(--accent); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:bold;">ENTRAR</button>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none; width: 100%; height: 100%; flex:1; display:flex;">
+<aside class="sidebar">
+  <div style="text-align:center; font-weight:bold; color:var(--accent)">STUDYBUDDY PRO</div>
+  <div class="pomodoro-zone">
+      <div id="timer-display">00:00:00</div>
+      <div class="pomo-btns">
+          <button onclick="startTimer()">FOCAR</button>
+          <button onclick="pauseTimer()">PAUSAR</button>
+          <button onclick="resetTimer()">RESET</button>
+      </div>
+  </div>
+  <div class="streak-zone">🔥 OFENSIVA: <span id="streak-count">0</span></div>
+  <div class="garden-zone">
+      <span id="plant-display">🍃</span>
+      <div id="growth-label" style="font-size:11px; margin-top:8px; color:#888;">SEMENTE</div>
+  </div>
+  <div class="level-zone">Nível: <span id="level-display">Iniciante - 1</span>
+    <div id="level-progress-bar"><div id="level-progress"></div></div>
+  </div>
+  <button class="notes-btn" onclick="toggleNotes()">📝 Notas</button>
+  <button class="history-btn" onclick="toggleHistory()">📜 Histórico</button>
+</aside>
+
+<main class="main">
+  <div class="header-inputs">
+      <input id="subject-in" placeholder="O que vamos estudar agora?">
+      <input id="h-in" type="number" class="num-in" placeholder="Horas" min="0">
+      <input id="m-in" type="number" class="num-in" placeholder="Min" min="0">
+      <button onclick="addTask()" style="background:var(--accent); color:white; border:none; padding:0 25px; border-radius:8px; cursor:pointer; font-weight:bold;">ADICIONAR</button>
+  </div>
+  <div class="columns">
+      <div class="column"><h3>⏳ A Fazer</h3><div id="todoList" class="task-list"></div></div>
+      <div class="column"><h3>🚀 Em Curso</h3><div id="doingList" class="task-list"></div></div>
+      <div class="column"><h3>✅ Concluído</h3><div id="doneList" class="task-list"></div></div>
+  </div>
+
+  <div class="ai-fab" onclick="toggleChat()">🤖</div>
+  <div class="chat-container" id="ai-chat">
+      <div style="padding:15px; border-bottom:1px solid var(--border); font-weight:bold; display:flex; justify-content:space-between;">
+          <span>🤖 Monitor Mentor</span>
+          <span style="cursor:pointer" onclick="toggleChat()">×</span>
+      </div>
+      <div id="chat-messages"></div>
+      <div style="padding:10px; display:flex; gap:5px;">
+          <input id="chat-input" placeholder="Peça dicas..." style="flex:1; padding:10px; border-radius:8px; background:#0f1115; color:white; border:none; outline:none;" onkeypress="if(event.key==='Enter') askIA()">
+          <button onclick="askIA()" style="background:var(--accent); border:none; color:white; border-radius:8px; padding:0 15px; cursor:pointer;">↑</button>
+      </div>
+  </div>
+</main>
+</div>
+
+<!-- Histórico -->
+<div id="history-modal" onclick="toggleHistory()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+      <h2 style="margin-top:0">📜 Registro de Atividades</h2>
+      <div id="history-list"></div>
+      <button onclick="confirmClearHistory()" style="width:48%; margin:10px 1%; padding:12px; border-radius:8px; border:none; background:var(--danger); color:white; cursor:pointer;">Apagar Tudo</button>
+      <button onclick="toggleHistory()" style="width:48%; margin:10px 1%; padding:12px; border-radius:8px; border:none; background:var(--accent); color:white; cursor:pointer;">Fechar</button>
+  </div>
+</div>
+
+<!-- Bloco de Notas -->
+<div id="notes-box">
+  <span class="close-notes" onclick="closeNotes()">×</span>
+  <textarea placeholder="Escreva suas notas aqui..."></textarea>
+  <button onclick="alert('Notas salvas!')">Salvar</button>
+</div>
+
+<script>
+let tasks = JSON.parse(localStorage.getItem('sb_tasks'))||[];
+let streak = parseInt(localStorage.getItem('sb_streak'))||0;
+let points = parseInt(localStorage.getItem('sb_points'))||0;
+let historyLog = JSON.parse(localStorage.getItem('sb_history'))||[];
+let timeLeft = 0; let timerInterval;
+const plants = ['🍃','🌿','🌾','🌱','🪴','🌲','🌳','🌴'];
+const levels = ["Iniciante","Aprendiz","Estudante","Intermediário","Avançado","Pro","Mestre","Guru"];
+
+function login(){
+  const user=document.getElementById('user-login').value;
+  const pass=document.getElementById('pass-login').value;
+  if(user.trim()!=="" && pass==="1234"){
+    document.getElementById('loginBox').style.display='none';
+    document.getElementById('app').style.display='flex';
+    renderTasks(); updateStreak(); updateLevel();
+    addChatMessage("ai",`Olá ${user}! Estou pronto para te dar dicas de estudo hoje.`);
+  } else alert("Preencha seu nome e use a senha 1234!");
+}
+
+function addTask(){
+  const subject=document.getElementById('subject-in').value;
+  const h=parseInt(document.getElementById('h-in').value)||0;
+  const m=parseInt(document.getElementById('m-in').value)||0;
+  if(!subject) return;
+  tasks.push({id:Date.now(),subject,totalSeconds:h*3600+m*60,timeStr:`${h}h ${m}m`,status:'todo'});
+  saveData(); renderTasks();
+  document.getElementById('subject-in').value='';
+}
+
+function moveTask(id,newStatus){
+  tasks = tasks.map(t=>{ 
+    if(t.id===id){ 
+      t.status=newStatus; 
+      if(newStatus==='doing') timeLeft=t.totalSeconds;
+      if(newStatus==='done'){ 
+        streak++; points++; 
+        historyLog.unshift({name:t.subject,date:new Date().toLocaleString('pt-BR'),duration:t.timeStr});
+        updateStreak(); updateLevel(); 
+        timeLeft=0; displayTimer(); 
+      }
+    } return t;
+  }); saveData(); renderTasks();
+}
+
+function deleteTask(id){ tasks = tasks.filter(t=>t.id!==id); saveData(); renderTasks(); }
+
+function renderTasks(){
+  const lists={todo:'todoList',doing:'doingList',done:'doneList'};
+  Object.values(lists).forEach(id=>document.getElementById(id).innerHTML='');
+  tasks.forEach(t=>{
+    const card=document.createElement('div'); card.className='card';
+    let btn='';
+    if(t.status==='todo') btn=`<button class="action-btn" onclick="moveTask(${t.id},'doing')">INICIAR FOCO</button>`;
+    if(t.status==='doing') btn=`<button class="action-btn" onclick="moveTask(${t.id},'done')" style="background:var(--success)">CONCLUIR AGORA</button>`;
+    card.innerHTML=`<span class="delete-icon" onclick="deleteTask(${t.id})">🗑️</span>
+    <strong style="display:block;margin-bottom:5px">${t.subject}</strong>
+    <small style="color:#888">⏱️ Meta: ${t.timeStr}</small>${btn}`;
+    document.getElementById(lists[t.status]).appendChild(card);
+  });
+}
+
+// Plantas e níveis
+function updateStreak(){ 
+  document.getElementById('streak-count').innerText=streak;
+  const plant=document.getElementById('plant-display');
+  plant.innerText = plants[Math.min(streak,plants.length-1)];
+  localStorage.setItem('sb_streak',streak);
+}
+function updateLevel(){
+  const lvl = Math.min(Math.floor(points/10), levels.length-1);
+  document.getElementById('level-display').innerText = `${levels[lvl]} - ${points}`;
+  const prog = Math.min((points%10)*10,100);
+  document.getElementById('level-progress').style.width=`${prog}%`;
+  localStorage.setItem('sb_points',points);
+}
+
+// Histórico
+function toggleHistory(){ 
+  const modal=document.getElementById('history-modal');
+  modal.style.display = modal.style.display==='flex'?'none':'flex';
+  renderHistory();
+}
+function renderHistory(){
+  const list=document.getElementById('history-list');
+  list.innerHTML='';
+  historyLog.forEach(h=>{
+    const div=document.createElement('div'); div.className='history-item';
+    div.innerHTML=`<strong>${h.name}</strong> <small>${h.date} (${h.duration})</small>`;
+    list.appendChild(div);
+  });
+}
+function confirmClearHistory(){
+  if(confirm("Deseja apagar todo o histórico?")){
+    historyLog=[]; localStorage.setItem('sb_history',JSON.stringify(historyLog));
+    renderHistory();
+  }
+}
+
+// Notas
+function toggleNotes(){ document.getElementById('notes-box').style.display='flex'; }
+function closeNotes(){ document.getElementById('notes-box').style.display='none'; }
+
+// Timer
+function displayTimer(){
+  let h=Math.floor(timeLeft/3600), m=Math.floor((timeLeft%3600)/60), s=timeLeft%60;
+  document.getElementById('timer-display').innerText=
+  `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function startTimer(){ clearInterval(timerInterval); if(timeLeft<=0) return; timerInterval=setInterval(()=>{
+  if(timeLeft>0){ timeLeft--; displayTimer(); } else clearInterval(timerInterval);
+},1000);}
+function pauseTimer(){ clearInterval(timerInterval); }
+function resetTimer(){ timeLeft=0; displayTimer(); clearInterval(timerInterval); }
+
+// IA
+function toggleChat(){ const c=document.getElementById('ai-chat'); c.style.display=c.style.display==='flex'?'none':'flex'; }
+function addChatMessage(sender,msg){
+  const container=document.getElementById('chat-messages');
+  const div=document.createElement('div'); div.className='msg '+sender;
+  div.innerText=msg; container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+function askIA(){
+  const input=document.getElementById('chat-input'); 
+  if(!input.value.trim()) return;
+  const userQuestion=input.value;
+  addChatMessage('user',userQuestion);
+  input.value='';
+  const q=userQuestion.toLowerCase();
+  if(q.includes("matemática")) addChatMessage('ai',"📌 Dica Matemática: Entenda conceitos, pratique exercícios curtos e revise fórmulas.");
+  else if(q.includes("inglês")) addChatMessage('ai',"📌 Dica Inglês: Leia textos, pratique vocabulário e pronúncia.");
+  else if(q.includes("história")) addChatMessage('ai',"📌 Dica História: Use linhas do tempo e associe fatos a imagens.");
+  else if(q.includes("geografia")) addChatMessage('ai',"📌 Dica Geografia: Visualize mapas e compreenda processos naturais.");
+  else if(q.includes("português")) addChatMessage('ai',"📌 Dica Português: Pratique interpretação e revise gramática.");
+  else if(q.includes("física")) addChatMessage('ai',"📌 Dica Física: Entenda conceitos, desenhe situações e pratique exercícios.");
+  else if(q.includes("química")) addChatMessage('ai',"📌 Dica Química: Revise fórmulas, faça resumos e pratique reações.");
+  else if(q.includes("biologia")) addChatMessage('ai',"📌 Dica Biologia: Use diagramas, associe conceitos a imagens e revise processos.");
+  else addChatMessage('ai',"💡 Dica geral: Divida suas tarefas, faça pausas e mantenha foco total no estudo.");
+}
+
+// LocalStorage
+function saveData(){ 
+  localStorage.setItem('sb_tasks',JSON.stringify(tasks));
+  localStorage.setItem('sb_history',JSON.stringify(historyLog));
+}
+
+</script>
+</body>
+</html>
